@@ -1,0 +1,197 @@
+<!-- src/app/features/landing/landing.component.html -->
+
+<!-- ─── HERO SECTION ─────────────────────────────────── -->
+<section class="hero">
+  <div class="container hero-inner">
+
+    <!-- Left Content -->
+    <div class="hero-content">
+      <div class="hero-badge">🤖 AI-Powered Meal Planning</div>
+
+      <h1 class="hero-title">
+        Recipe and Meal<br>
+        Plan App with <span class="accent">Ai</span>
+      </h1>
+
+      <p class="hero-subtitle">
+        Save time in planning meals according to available ingredients
+        and help users to have a healthy or customized diet.
+      </p>
+
+      <div class="hero-actions">
+        <a *ngIf="!isLoggedIn" routerLink="/auth/register" class="btn-primary btn-lg">
+          Try for Free 🚀
+        </a>
+        <a *ngIf="isLoggedIn" routerLink="/recipes" class="btn-primary btn-lg">
+          Browse Recipes 🍽️
+        </a>
+        <a routerLink="/meal-plan" class="btn-icon">↗</a>
+      </div>
+
+      <!-- Nutrition Reminder -->
+      <div class="nutrition-reminder">
+        <p>Don't forget to replenish the nutrients you need in a day.</p>
+        <div class="nutrition-tags">
+          <span class="badge">Calories</span>
+          <span class="badge">Carbohydrates</span>
+          <span class="badge">Proteins</span>
+          <span class="badge">Fat</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Widgets -->
+    <div class="hero-widgets">
+
+      <!-- Food Image -->
+      <div class="hero-image">
+        <img
+          src="https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=600"
+          alt="Healthy Food"
+        />
+        <div class="float-badge nutrition-badge">
+          <span>📊</span> Nutrition Analysis
+        </div>
+        <div class="float-badge meal-badge">
+          <span>🤖</span> Automatic Meal Plan
+        </div>
+      </div>
+
+      <!-- Required Recipe Widget -->
+      <div class="widget recipe-widget">
+        <h4>Required Recipe</h4>
+        <p class="widget-sub">Recipe by the hour</p>
+
+        <div class="time-slots">
+          <button
+            *ngFor="let slot of timeSlots"
+            class="time-btn"
+            [class.active]="activeSlot === slot"
+            (click)="activeSlot = slot"
+          >
+            {{ slot }}
+          </button>
+        </div>
+
+        <div class="widget-image">
+          <img
+            src="https://images.unsplash.com/photo-1525351484163-7529414344d8?w=300"
+            alt="Recipe"
+          />
+        </div>
+      </div>
+
+      <!-- Nutrients Widget -->
+      <div class="widget nutrients-widget">
+        <h4>Nutrients required</h4>
+        <p class="widget-sub">nutrients needed in a day</p>
+
+        <div class="nutrient-item">
+          <div class="nutrient-header">
+            <span>Calories</span>
+            <span>{{ nutritionData.calories.current }}/{{ nutritionData.calories.max }}</span>
+          </div>
+          <div class="progress-bar">
+            <div
+              class="progress-fill"
+              [style.width]="getProgressWidth(nutritionData.calories.current, nutritionData.calories.max)"
+              [style.background]="getProgressColor(nutritionData.calories.current, nutritionData.calories.max)"
+            ></div>
+          </div>
+        </div>
+
+        <div class="nutrient-item">
+          <div class="nutrient-header">
+            <span>Carbohydrates</span>
+            <span>{{ nutritionData.carbohydrates.current }}/{{ nutritionData.carbohydrates.max }}</span>
+          </div>
+          <div class="progress-bar">
+            <div
+              class="progress-fill"
+              [style.width]="getProgressWidth(nutritionData.carbohydrates.current, nutritionData.carbohydrates.max)"
+              style="background: #c6f135"
+            ></div>
+          </div>
+        </div>
+
+        <div class="nutrient-item">
+          <div class="nutrient-header">
+            <span>Proteins</span>
+            <span>{{ nutritionData.proteins.current }}/{{ nutritionData.proteins.max }}</span>
+          </div>
+          <div class="progress-bar">
+            <div
+              class="progress-fill"
+              [style.width]="getProgressWidth(nutritionData.proteins.current, nutritionData.proteins.max)"
+              style="background: #c6f135; width: 14%"
+            ></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ─── STATS SECTION ────────────────────────────────── -->
+<section class="stats-section">
+  <div class="container">
+    <div class="stats-grid">
+      <div class="stat-item" *ngFor="let stat of stats">
+        <h3>{{ stat.number }}</h3>
+        <p>{{ stat.label }}</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── FEATURES SECTION ─────────────────────────────── -->
+<section class="features-section section-padding">
+  <div class="container">
+
+    <div class="section-header">
+      <h2>What you need <span class="accent">we will provide</span></h2>
+      <p>Everything you need for a healthy lifestyle in one place</p>
+    </div>
+
+    <div class="features-grid">
+      <div class="feature-card card" *ngFor="let feature of features">
+        <div class="feature-image">
+          <img [src]="feature.image" [alt]="feature.title" />
+          <div class="feature-icon">{{ feature.icon }}</div>
+        </div>
+        <div class="feature-content">
+          <h3>{{ feature.title }}</h3>
+          <p>{{ feature.description }}</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ─── CTA SECTION ──────────────────────────────────── -->
+<section class="cta-section">
+  <div class="container">
+    <div class="cta-card">
+      <div class="cta-content">
+        <h2>Start Planning Your<br><span class="accent">Healthy Meals Today</span></h2>
+        <p>Join thousands of users who are already eating healthier with MealPlan</p>
+        <div class="cta-actions">
+          <a routerLink="/auth/register" class="btn-primary btn-lg">
+            Try for Free
+          </a>
+          <a routerLink="/recipes" class="btn-secondary">
+            Browse Recipes
+          </a>
+        </div>
+      </div>
+      <div class="cta-image">
+        <img
+          src="https://images.unsplash.com/photo-1498837167922-ddd27525d352?w=500"
+          alt="Healthy Eating"
+        />
+      </div>
+    </div>
+  </div>
+</section>

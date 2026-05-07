@@ -1,0 +1,97 @@
+<!-- src/app/features/saved-recipes/saved-recipes.component.html -->
+<div class="saved-recipes">
+
+  <!-- Header -->
+  <div class="page-header">
+    <div class="container">
+      <div class="header-content">
+        <div>
+          <h1>🔖 Saved Recipes</h1>
+          <p>{{ savedRecipes.length }} recipes saved to your collection</p>
+        </div>
+        <a routerLink="/recipes" class="btn-primary">
+          🔍 Discover More
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <div class="container page-body">
+
+    <!-- Loading -->
+    <div class="loading-state" *ngIf="isLoading">
+      <p>⏳ Loading saved recipes...</p>
+    </div>
+
+    <!-- Empty State -->
+    <div class="empty-state"
+         *ngIf="!isLoading && savedRecipes.length === 0">
+      <div class="empty-icon">🔖</div>
+      <h3>No Saved Recipes Yet</h3>
+      <p>Save recipes from the feed by clicking the bookmark icon</p>
+      <a routerLink="/recipes" class="btn-primary">
+        Browse Recipes
+      </a>
+    </div>
+
+    <ng-container *ngIf="!isLoading && savedRecipes.length > 0">
+
+      <!-- Filters -->
+      <div class="filters-bar">
+        <div class="search-input">
+          <span>🔍</span>
+          <input
+            type="text"
+            [(ngModel)]="searchTerm"
+            placeholder="Search saved recipes..."
+          />
+          <button *ngIf="searchTerm" (click)="searchTerm = ''">✕</button>
+        </div>
+
+        <select [(ngModel)]="selectedCuisine">
+          <option value="">All Cuisines</option>
+          <option *ngFor="let c of cuisines" [value]="c">{{ c }}</option>
+        </select>
+
+        <select [(ngModel)]="selectedDifficulty">
+          <option value="">All Levels</option>
+          <option value="Easy">Easy</option>
+          <option value="Medium">Medium</option>
+          <option value="Hard">Hard</option>
+        </select>
+
+        <button
+          *ngIf="hasActiveFilters"
+          class="btn-clear"
+          (click)="clearFilters()"
+        >
+          Clear ✕
+        </button>
+      </div>
+
+      <!-- Grid -->
+      <div class="recipes-grid">
+        <app-recipe-card
+          *ngFor="let recipe of savedRecipes
+            | recipeFilter:searchTerm:selectedCuisine:selectedDifficulty:maxCookingTime"
+          [recipe]="recipe"
+          (onLike)="toggleLike($event)"
+          (onSave)="toggleSave($event)"
+        ></app-recipe-card>
+      </div>
+
+      <!-- No Results -->
+      <div class="empty-state"
+           *ngIf="(savedRecipes
+             | recipeFilter:searchTerm:selectedCuisine:selectedDifficulty:maxCookingTime
+           ).length === 0">
+        <div class="empty-icon">🔍</div>
+        <h3>No matches found</h3>
+        <button class="btn-primary" (click)="clearFilters()">
+          Clear Filters
+        </button>
+      </div>
+
+    </ng-container>
+  </div>
+</div>

@@ -1,0 +1,192 @@
+// src/app/shared/components/recipe-card/recipe-card.component.scss
+.recipe-card {
+  background: var(--bg-card);
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: var(--shadow);
+  cursor: pointer;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  display: flex;
+  flex-direction: column;
+
+  &:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 16px 40px rgba(0,0,0,0.12);
+
+    .card-image img {
+      transform: scale(1.05);
+    }
+  }
+
+  // Image
+  .card-image {
+    position: relative;
+    height: 200px;
+    overflow: hidden;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.4s ease;
+    }
+
+    .btn-save {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      background: rgba(255,255,255,0.9);
+      border: none;
+      border-radius: 50%;
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 16px;
+      transition: all 0.2s ease;
+      backdrop-filter: blur(4px);
+
+      &:hover, &.saved {
+        background: white;
+        transform: scale(1.1);
+      }
+    }
+
+    .difficulty-badge {
+      position: absolute;
+      bottom: 12px;
+      left: 12px;
+      color: white;
+      padding: 4px 12px;
+      border-radius: 50px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+  }
+
+  // Content
+  .card-content {
+    padding: 16px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+
+    .card-author {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+
+      .author-avatar {
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        background: #c6f135;
+        color: #1a1a2e;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+        font-weight: 700;
+        flex-shrink: 0;
+      }
+
+      span {
+        font-size: 13px;
+        color: var(--text-muted);
+        font-weight: 500;
+      }
+    }
+
+    .card-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text-dark);
+      line-height: 1.4;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .card-description {
+      font-size: 13px;
+      color: var(--text-muted);
+      line-height: 1.5;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .card-meta {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+
+      .meta-item {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        font-size: 12px;
+        color: var(--text-muted);
+      }
+    }
+
+    .card-nutrition {
+      display: flex;
+      gap: 12px;
+      padding: 8px 12px;
+      background: var(--bg-light);
+      border-radius: 8px;
+
+      .nutrition-item {
+        font-size: 12px;
+        color: var(--text-muted);
+        font-weight: 500;
+      }
+    }
+
+    .card-footer {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-top: auto;
+      padding-top: 8px;
+      border-top: 1px solid var(--border);
+
+      .btn-like {
+        background: transparent;
+        border: none;
+        cursor: pointer;
+        font-size: 14px;
+        color: var(--text-muted);
+        padding: 4px 8px;
+        border-radius: 8px;
+        transition: all 0.2s ease;
+
+        &:hover, &.liked {
+          background: #fee2e2;
+          color: #ef4444;
+        }
+      }
+
+      .comments-count {
+        font-size: 13px;
+        color: var(--text-muted);
+      }
+
+      .rating {
+        margin-left: auto;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--text-dark);
+      }
+    }
+  }
+}

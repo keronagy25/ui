@@ -1,0 +1,215 @@
+<!-- src/app/features/profile/user-profile/user-profile.component.html -->
+<div class="user-profile">
+
+  <!-- Loading -->
+  <div class="loading-state" *ngIf="isLoading">
+    <p>⏳ Loading profile...</p>
+  </div>
+
+  <ng-container *ngIf="!isLoading && profileUser">
+
+    <!-- ─── PROFILE HEADER ──────────────────────────── -->
+    <div class="profile-header">
+      <div class="container">
+        <div class="header-content">
+
+          <!-- Avatar -->
+          <div class="profile-avatar">
+            <img *ngIf="profileUser.photoURL"
+                 [src]="profileUser.photoURL"
+                 [alt]="profileUser.displayName" />
+            <span *ngIf="!profileUser.photoURL">
+              {{ profileUser.displayName?.charAt(0) | uppercase }}
+            </span>
+          </div>
+
+          <!-- Info -->
+          <div class="profile-info">
+            <div class="profile-name-row">
+              <h1>{{ profileUser.displayName }}</h1>
+              <span class="username">@{{ profileUser.username }}</span>
+            </div>
+
+            <p class="profile-bio" *ngIf="profileUser.bio">
+              {{ profileUser.bio }}
+            </p>
+            <p class="profile-bio empty" *ngIf="!profileUser.bio && isOwnProfile">
+              Add a bio to tell people about yourself
+            </p>
+
+            <!-- Stats -->
+            <div class="profile-stats">
+              <div class="stat">
+                <span class="stat-value">{{ userRecipes.length }}</span>
+                <span class="stat-label">Recipes</span>
+              </div>
+              <div class="stat">
+                <span class="stat-value">{{ followersCount }}</span>
+                <span class="stat-label">Followers</span>
+              </div>
+              <div class="stat">
+                <span class="stat-value">{{ followingCount }}</span>
+                <span class="stat-label">Following</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Actions -->
+          <div class="profile-actions">
+            <ng-container *ngIf="isOwnProfile">
+              <button
+                class="btn-edit-profile"
+                (click)="activeTab = 'edit'"
+              >
+                ✏️ Edit Profile
+              </button>
+              <a routerLink="/recipes/create" class="btn-primary">
+                + New Recipe
+              </a>
+            </ng-container>
+
+            <ng-container *ngIf="!isOwnProfile">
+              <button
+                class="btn-follow"
+                [class.following]="isFollowing"
+                (click)="toggleFollow()"
+              >
+                {{ isFollowing ? '✓ Following' : '+ Follow' }}
+              </button>
+            </ng-container>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── TABS ────────────────────────────────────── -->
+    <div class="container profile-content">
+
+      <div class="tab-nav">
+        <button
+          [class.active]="activeTab === 'recipes'"
+          (click)="activeTab = 'recipes'"
+        >
+          🍽️ Recipes ({{ userRecipes.length }})
+        </button>
+        <button
+          *ngIf="isOwnProfile"
+          [class.active]="activeTab === 'saved'"
+          (click)="activeTab = 'saved'"
+        >
+          🔖 Saved
+        </button>
+        <button
+          *ngIf="isOwnProfile"
+          [class.active]="activeTab === 'edit'"
+          (click)="activeTab = 'edit'"
+        >
+          ⚙️ Edit Profile
+        </button>
+      </div>
+
+      <!-- Recipes Tab -->
+      <div *ngIf="activeTab === 'recipes'">
+        <div class="recipes-grid" *ngIf="userRecipes.length > 0">
+          <app-recipe-card
+            *ngFor="let recipe of userRecipes"
+            [recipe]="recipe"
+            (onLike)="toggleLike($event)"
+            (onSave)="toggleSave($event)"
+          ></app-recipe-card>
+        </div>
+
+        <div class="empty-state" *ngIf="userRecipes.length === 0">
+          <div class="empty-icon">🍽️</div>
+          <h3>No recipes yet</h3>
+          <p *ngIf="isOwnProfile">
+            Share your first recipe with the community!
+          </p>
+          <a *ngIf="isOwnProfile"
+             routerLink="/recipes/create"
+             class="btn-primary">
+            + Create Recipe
+          </a>
+        </div>
+      </div>
+
+      <!-- Saved Tab -->
+      <div *ngIf="activeTab === 'saved' && isOwnProfile">
+        <div class="empty-state">
+          <div class="empty-icon">🔖</div>
+          <h3>Saved recipes appear here</h3>
+          <p>Save recipes from the feed to find them here</p>
+          <a routerLink="/saved-recipes" class="btn-primary">
+            View Saved Recipes
+          </a>
+        </div>
+      </div>
+
+      <!-- Edit Profile Tab -->
+      <div *ngIf="activeTab === 'edit' && isOwnProfile">
+        <div class="edit-profile-card">
+          <h2>Edit Profile</h2>
+
+          <div class="success-alert" *ngIf="editSuccess">
+            ✅ Profile updated successfully!
+          </div>
+
+          <form [formGroup]="editForm" (ngSubmit)="saveProfile()">
+
+            <div class="form-group">
+              <label>Display Name *</label>
+              <input
+                type="text"
+                formControlName="displayName"
+                placeholder="Your display name"
+              />
+              <div class="field-errors"
+                   *ngIf="editForm.get('displayName')?.invalid &&
+                     editForm.get('displayName')?.touched">
+                <span>Display name is required</span>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Bio</label>
+              <textarea
+                formControlName="bio"
+                placeholder="Tell people about yourself..."
+                rows="3"
+              ></textarea>
+              <span class="char-count">
+                {{ editForm.get('bio')?.value?.length || 0 }}/200
+              </span>
+            </div>
+
+            <div class="form-group">
+              <label>Profile Photo URL</label>
+              <input
+                type="url"
+                formControlName="photoURL"
+                placeholder="https://example.com/photo.jpg"
+              />
+              <div class="photo-preview"
+                   *ngIf="editForm.get('photoURL')?.value">
+                <img [src]="editForm.get('photoURL')?.value"
+                     alt="Preview"
+                     onerror="this.style.display='none'"/>
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              class="btn-save"
+              [disabled]="editForm.invalid || isSavingProfile"
+            >
+              {{ isSavingProfile ? '⏳ Saving...' : '💾 Save Changes' }}
+            </button>
+
+          </form>
+        </div>
+      </div>
+
+    </div>
+  </ng-container>
+</div>

@@ -1,0 +1,160 @@
+<!-- src/app/features/recipes/recipe-feed/recipe-feed.component.html -->
+<div class="recipe-feed">
+
+  <!-- ─── PAGE HEADER ─────────────────────────────────── -->
+  <div class="feed-header">
+    <div class="container">
+      <div class="header-content">
+        <div>
+          <h1>Discover Recipes 🍽️</h1>
+          <p>Explore {{ recipes.length }} delicious recipes from our community</p>
+        </div>
+        <a routerLink="/recipes/create" class="btn-primary">
+          + Share Recipe
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <div class="container feed-body">
+
+    <!-- ─── SEARCH & FILTERS ───────────────────────────── -->
+    <div class="filters-section">
+
+      <!-- Search Bar -->
+      <div class="search-bar">
+        <span class="search-icon">🔍</span>
+        <input
+          type="text"
+          [(ngModel)]="searchTerm"
+          placeholder="Search recipes, ingredients, cuisine..."
+          class="search-input"
+        />
+        <button
+          *ngIf="searchTerm"
+          class="clear-search"
+          (click)="searchTerm = ''"
+        >✕</button>
+      </div>
+
+      <!-- Filter Row -->
+      <div class="filter-row">
+
+        <!-- Cuisine Filter -->
+        <select [(ngModel)]="selectedCuisine" class="filter-select">
+          <option value="">All Cuisines</option>
+          <option *ngFor="let cuisine of cuisines" [value]="cuisine">
+            {{ cuisine }}
+          </option>
+        </select>
+
+        <!-- Difficulty Filter -->
+        <select [(ngModel)]="selectedDifficulty" class="filter-select">
+          <option value="">All Levels</option>
+          <option *ngFor="let diff of difficulties" [value]="diff">
+            {{ diff }}
+          </option>
+        </select>
+
+        <!-- Time Filter -->
+        <select [(ngModel)]="maxCookingTime" class="filter-select">
+          <option *ngFor="let range of timeRanges" [value]="range.value">
+            {{ range.label }}
+          </option>
+        </select>
+
+        <!-- Sort -->
+        <select [(ngModel)]="sortBy"
+                (ngModelChange)="onSortChange()"
+                class="filter-select">
+          <option value="newest">Newest First</option>
+          <option value="popular">Most Popular</option>
+          <option value="rating">Top Rated</option>
+          <option value="quickest">Quickest</option>
+        </select>
+
+        <!-- Clear Filters -->
+        <button
+          *ngIf="hasActiveFilters"
+          class="btn-clear"
+          (click)="clearFilters()"
+        >
+          Clear Filters ✕
+        </button>
+
+        <!-- View Mode -->
+        <div class="view-toggle">
+          <button
+            [class.active]="viewMode === 'grid'"
+            (click)="viewMode = 'grid'"
+          >⊞</button>
+          <button
+            [class.active]="viewMode === 'list'"
+            (click)="viewMode = 'list'"
+          >☰</button>
+        </div>
+      </div>
+
+      <!-- Results Count -->
+      <div class="results-info" *ngIf="hasActiveFilters">
+        <span>Showing <strong>{{ filteredCount }}</strong> results</span>
+        <span *ngIf="searchTerm"> for "<strong>{{ searchTerm }}</strong>"</span>
+      </div>
+    </div>
+
+    <!-- ─── LOADING ────────────────────────────────────── -->
+    <div class="loading-grid" *ngIf="isLoading">
+      <div class="skeleton-card" *ngFor="let i of [1,2,3,4,5,6]">
+        <div class="skeleton-image"></div>
+        <div class="skeleton-content">
+          <div class="skeleton-line w-60"></div>
+          <div class="skeleton-line w-100"></div>
+          <div class="skeleton-line w-80"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── RECIPE GRID ────────────────────────────────── -->
+    <div
+      *ngIf="!isLoading"
+      class="recipes-grid"
+      [class.list-view]="viewMode === 'list'"
+    >
+      <app-recipe-card
+        *ngFor="let recipe of recipes
+          | recipeFilter:searchTerm:selectedCuisine:selectedDifficulty:maxCookingTime"
+        [recipe]="recipe"
+        (onLike)="toggleLike($event)"
+        (onSave)="toggleSave($event)"
+      ></app-recipe-card>
+    </div>
+
+    <!-- ─── EMPTY STATE ───────────────────────────────── -->
+    <div
+      class="empty-state"
+      *ngIf="!isLoading && filteredCount === 0"
+    >
+      <div class="empty-icon">🔍</div>
+      <h3>No recipes found</h3>
+      <p>Try adjusting your search or filters</p>
+      <button class="btn-primary" (click)="clearFilters()">
+        Clear All Filters
+      </button>
+    </div>
+
+    <!-- ─── NO RECIPES YET ───────────────────────────── -->
+    <!-- NO RECIPES YET — only show if no filters active either -->
+<div
+  class="empty-state"
+  *ngIf="!isLoading && recipes.length === 0 && !hasActiveFilters"
+>
+  <div class="empty-icon">🍽️</div>
+  <h3>No recipes yet!</h3>
+  <p>Be the first to share a recipe with the community</p>
+  <a routerLink="/recipes/create" class="btn-primary">
+    + Share First Recipe
+  </a>
+</div>
+
+  </div>
+</div>

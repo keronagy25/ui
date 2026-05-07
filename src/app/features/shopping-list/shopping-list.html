@@ -1,0 +1,161 @@
+<p>shopping-list works!</p>
+<!-- src/app/features/shopping-list/shopping-list.component.html -->
+<div class="shopping-list-page">
+
+  <!-- Header -->
+  <div class="page-header">
+    <div class="container">
+      <div class="header-content">
+        <div>
+          <h1>🛒 Shopping Lists</h1>
+          <p>Your auto-generated shopping lists from meal plans</p>
+        </div>
+        <a routerLink="/meal-plan" class="btn-primary">
+          📅 Go to Meal Planner
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <div class="container page-body">
+
+    <!-- Loading -->
+    <div class="loading-state" *ngIf="isLoading">
+      <p>⏳ Loading shopping lists...</p>
+    </div>
+
+    <!-- Empty State -->
+    <div class="empty-state"
+         *ngIf="!isLoading && shoppingLists.length === 0">
+      <div class="empty-icon">🛒</div>
+      <h3>No Shopping Lists Yet</h3>
+      <p>Generate a shopping list from your meal plan</p>
+      <a routerLink="/meal-plan" class="btn-primary">
+        📅 Create Meal Plan
+      </a>
+    </div>
+
+    <!-- Content -->
+    <div class="shopping-content"
+         *ngIf="!isLoading && shoppingLists.length > 0">
+
+      <!-- Sidebar - List History -->
+      <div class="lists-sidebar">
+        <h3>Shopping Lists</h3>
+        <div
+          class="list-item"
+          *ngFor="let list of shoppingLists"
+          [class.active]="activeList?.id === list.id"
+          (click)="selectList(list)"
+        >
+          <div class="list-item-info">
+            <span class="list-date">
+              {{ formatDate(list.createdAt) }}
+            </span>
+            <span class="list-count">
+              {{ list.categories?.length || 0 }} categories
+            </span>
+          </div>
+          <button
+            class="btn-delete-list"
+            (click)="$event.stopPropagation(); deleteList(list.id)"
+          >🗑️</button>
+        </div>
+      </div>
+
+      <!-- Main Content -->
+      <div class="list-content" *ngIf="activeList">
+
+        <!-- Progress Bar -->
+        <div class="progress-card">
+          <div class="progress-header">
+            <span>Shopping Progress</span>
+            <span class="progress-count">
+              {{ checkedItems }}/{{ totalItems }} items
+            </span>
+          </div>
+          <div class="progress-bar">
+            <div
+              class="progress-fill"
+              [style.width.%]="progressPercent"
+            ></div>
+          </div>
+          <span class="progress-percent">{{ progressPercent }}% Complete</span>
+        </div>
+
+        <!-- Search -->
+        <div class="search-bar">
+          <span>🔍</span>
+          <input
+            type="text"
+            [(ngModel)]="searchTerm"
+            placeholder="Search ingredients..."
+          />
+          <button *ngIf="searchTerm" (click)="searchTerm = ''">✕</button>
+        </div>
+
+        <!-- Categories -->
+        <div
+          class="category-section"
+          *ngFor="let category of filteredCategories;
+            let categoryIndex = index"
+        >
+          <div class="category-header">
+            <div class="category-title">
+              <span class="category-icon">
+                {{ getCategoryIcon(category.name) }}
+              </span>
+              <h3>{{ category.name }}</h3>
+              <span class="category-count">
+                {{ category.items.length }} items
+              </span>
+            </div>
+            <div class="category-actions">
+              <button
+                class="btn-check-all"
+                (click)="checkAllInCategory(categoryIndex, true)"
+              >
+                Check All
+              </button>
+              <button
+                class="btn-uncheck-all"
+                (click)="checkAllInCategory(categoryIndex, false)"
+              >
+                Uncheck
+              </button>
+            </div>
+          </div>
+
+          <div class="items-list">
+            <div
+              class="item-row"
+              *ngFor="let item of category.items; let itemIndex = index"
+              [class.checked]="item.checked"
+            >
+              <label class="item-checkbox">
+                <input
+                  type="checkbox"
+                  [checked]="item.checked"
+                  (change)="toggleItem(
+                    categoryIndex,
+                    itemIndex,
+                    $any($event.target).checked
+                  )"
+                />
+                <span class="checkmark"></span>
+              </label>
+
+              <div class="item-info">
+                <span class="item-name">{{ item.name }}</span>
+                <span class="item-amount">
+                  {{ item.amount }} {{ item.unit }}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>

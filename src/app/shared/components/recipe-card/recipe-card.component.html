@@ -1,0 +1,83 @@
+<!-- src/app/shared/components/recipe-card/recipe-card.component.html -->
+<div class="recipe-card" [routerLink]="['/recipes', recipe.id]">
+
+  <!-- Image -->
+  <div class="card-image">
+    <img
+      [src]="recipe.images?.[0] || 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=400'"
+      [alt]="recipe.title"
+      loading="lazy"
+    />
+
+    <!-- Save Button -->
+    <button class="btn-save" (click)="toggleSave($event)"
+            [class.saved]="isSaved" title="Save recipe">
+      {{ isSaved ? '🔖' : '📌' }}
+    </button>
+
+    <!-- Difficulty Badge -->
+    <span class="difficulty-badge"
+          [style.background]="getDifficultyColor(recipe.difficulty)">
+      {{ recipe.difficulty }}
+    </span>
+  </div>
+
+  <!-- Content -->
+  <div class="card-content">
+
+    <!-- Author -->
+    <div class="card-author">
+      <div class="author-avatar">
+        {{ recipe.authorName.charAt(0) | uppercase }}
+      </div>
+      <span>{{ recipe.authorName }}</span>
+    </div>
+
+    <!-- Title -->
+    <h3 class="card-title">{{ recipe.title }}</h3>
+    <p class="card-description">{{ recipe.description }}</p>
+
+    <!-- Meta Info -->
+    <div class="card-meta">
+      <span class="meta-item">
+        <span>⏱️</span> {{ recipe.cookingTime }} min
+      </span>
+      <span class="meta-item">
+        <span>👥</span> {{ recipe.servings }} servings
+      </span>
+      <span class="meta-item">
+        <span>🍽️</span> {{ recipe.cuisine }}
+      </span>
+    </div>
+
+    <!-- Nutrition -->
+    <div class="card-nutrition">
+      <span class="nutrition-item">
+        🔥 {{ recipe.nutrition?.calories }} cal
+      </span>
+      <span class="nutrition-item">
+        💪 {{ recipe.nutrition?.proteins }}g protein
+      </span>
+    </div>
+
+    <!-- Footer -->
+    <div class="card-footer">
+      <button class="btn-like"
+              [class.liked]="isLiked"
+              (click)="toggleLike($event)">
+        {{ isLiked ? '❤️' : '🤍' }} {{ likesCount }}
+      </button>
+
+      <!-- FIX: use commentsCount getter instead of .length directly -->
+      <span class="comments-count">
+        💬 {{ commentsCount }}
+      </span>
+
+      <div class="rating">
+        <span>⭐</span>
+        <span>{{ recipe.rating?.toFixed(1) ?? '0.0' }}</span>
+      </div>
+    </div>
+
+  </div>
+</div>

@@ -1,0 +1,880 @@
+<!-- src/app/features/recipes/recipe-create/recipe-create.component.html -->
+<div class="create-recipe">
+  <div class="container">
+
+    <!-- Header -->
+    <div class="page-header">
+      <a routerLink="/recipes" class="back-btn">← Back to Recipes</a>
+      <h1>Share Your Recipe 🍳</h1>
+      <p>Share your delicious recipe with the community</p>
+    </div>
+
+    <!-- Progress Steps -->
+    <div class="progress-steps">
+      <div class="progress-line">
+        <div
+          class="progress-fill"
+          [style.width.%]="((currentStep - 1) / 3) * 100"
+        ></div>
+      </div>
+
+      <div
+        *ngFor="let step of [1,2,3,4]; let i = index"
+        class="step-indicator"
+        [class.active]="currentStep === step"
+        [class.completed]="currentStep > step"
+      >
+        <div class="step-circle">
+          <span *ngIf="currentStep <= step">{{ step }}</span>
+          <span *ngIf="currentStep > step">✓</span>
+        </div>
+        <span class="step-label">
+          {{ ['Basic Info', 'Ingredients', 'Steps', 'Nutrition'][i] }}
+        </span>
+      </div>
+    </div>
+
+    <!-- Error Message -->
+    <div class="error-alert" *ngIf="errorMessage">
+      ⚠️ {{ errorMessage }}
+    </div>
+
+    <form [formGroup]="recipeForm" (ngSubmit)="onSubmit()">
+
+      <!-- ─── STEP 1: BASIC INFO ──────────────────────── -->
+      <div class="form-step" *ngIf="currentStep === 1">
+        <div class="step-card">
+          <h2>📝 Basic Information</h2>
+          <p class="step-desc">Tell us about your recipe</p>
+
+          <!-- Title -->
+          <div class="form-group">
+            <label>Recipe Title *</label>
+            <input
+              type="text"
+              formControlName="title"
+              placeholder="e.g. Classic Spaghetti Carbonara"
+              [class.error]="recipeForm.get('title')?.invalid &&
+                recipeForm.get('title')?.touched"
+            />
+            <div class="field-errors"
+                 *ngIf="recipeForm.get('title')?.invalid &&
+                   recipeForm.get('title')?.touched">
+              <span *ngIf="recipeForm.get('title')?.errors?.['required']">
+                Title is required
+              </span>
+              <span *ngIf="recipeForm.get('title')?.errors?.['minlength']">
+                Title must be at least 3 characters
+              </span>
+            </div>
+          </div>
+
+          <!-- Description -->
+          <div class="form-group">
+            <label>Description *</label>
+            <textarea
+              formControlName="description"
+              placeholder="Describe your recipe, what makes it special..."
+              rows="4"
+              [class.error]="recipeForm.get('description')?.invalid &&
+                recipeForm.get('description')?.touched"
+            ></textarea>
+            <div class="char-hint">
+              {{ recipeForm.get('description')?.value?.length || 0 }} characters
+            </div>
+            <div class="field-errors"
+                 *ngIf="recipeForm.get('description')?.invalid &&
+                   recipeForm.get('description')?.touched">
+              <span>Description must be at least 10 characters</span>
+            </div>
+          </div>
+
+          <!-- Cuisine & Difficulty -->
+          <div class="form-row">
+            <div class="form-group">
+              <label>Cuisine *</label>
+              <select
+                formControlName="cuisine"
+                [class.error]="recipeForm.get('cuisine')?.invalid &&
+                  recipeForm.get('cuisine')?.touched"
+              >
+                <option value="">Select Cuisine</option>
+                <option *ngFor="let c of cuisines" [value]="c">
+                  {{ c }}
+                </option>
+              </select>
+              <div class="field-errors"
+                   *ngIf="recipeForm.get('cuisine')?.invalid &&
+                     recipeForm.get('cuisine')?.touched">
+                <span>Please select a cuisine</span>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Difficulty *</label>
+              <select
+                formControlName="difficulty"
+                [class.error]="recipeForm.get('difficulty')?.invalid &&
+                  recipeForm.get('difficulty')?.touched"
+              >
+                <option value="">Select Difficulty</option>
+                <option value="Easy">🟢 Easy</option>
+                <option value="Medium">🟡 Medium</option>
+                <option value="Hard">🔴 Hard</option>
+              </select>
+              <div class="field-errors"
+                   *ngIf="recipeForm.get('difficulty')?.invalid &&
+                     recipeForm.get('difficulty')?.touched">
+                <span>Please select difficulty</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Cook Time, Prep Time, Servings -->
+          <div class="form-row three-col">
+            <div class="form-group">
+              <label>⏱️ Cook Time (min) *</label>
+              <input
+                type="number"
+                formControlName="cookingTime"
+                placeholder="30"
+                min="1"
+                [class.error]="recipeForm.get('cookingTime')?.invalid &&
+                  recipeForm.get('cookingTime')?.touched"
+              />
+              <div class="field-errors"
+                   *ngIf="recipeForm.get('cookingTime')?.invalid &&
+                     recipeForm.get('cookingTime')?.touched">
+                <span>Required, min 1</span>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>🔪 Prep Time (min) *</label>
+              <input
+                type="number"
+                formControlName="prepTime"
+                placeholder="15"
+                min="1"
+                [class.error]="recipeForm.get('prepTime')?.invalid &&
+                  recipeForm.get('prepTime')?.touched"
+              />
+              <div class="field-errors"
+                   *ngIf="recipeForm.get('prepTime')?.invalid &&
+                     recipeForm.get('prepTime')?.touched">
+                <span>Required, min 1</span>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>👥 Servings *</label>
+              <input
+                type="number"
+                formControlName="servings"
+                placeholder="4"
+                min="1"
+                [class.error]="recipeForm.get('servings')?.invalid &&
+                  recipeForm.get('servings')?.touched"
+              />
+              <div class="field-errors"
+                   *ngIf="recipeForm.get('servings')?.invalid &&
+                     recipeForm.get('servings')?.touched">
+                <span>Required, min 1</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- ─── IMAGE UPLOAD ──────────────────────────── -->
+          <div class="form-group">
+            <label>📸 Recipe Image</label>
+
+            <!-- Tab Toggle: Upload vs URL -->
+            <div class="image-input-tabs">
+              <button
+                type="button"
+                class="tab-btn"
+                [class.active]="imageInputMode === 'upload'"
+                (click)="imageInputMode = 'upload'"
+              >
+                📁 Upload File
+              </button>
+              <button
+                type="button"
+                class="tab-btn"
+                [class.active]="imageInputMode === 'url'"
+                (click)="imageInputMode = 'url'"
+              >
+                🔗 Paste URL
+              </button>
+            </div>
+
+            <!-- ── UPLOAD MODE ────────────────────────── -->
+            <div *ngIf="imageInputMode === 'upload'">
+
+              <!-- Hidden native file input -->
+              <input
+                type="file"
+                id="imageUpload"
+                accept="image/jpeg,image/png,image/webp,image/gif"
+                (change)="onImageFileSelected($event)"
+                class="file-input-hidden"
+              />
+
+              <!-- Clickable drop-zone label -->
+              <label
+                for="imageUpload"
+                class="drop-zone"
+                [class.has-image]="imagePreview && !isUploadingImage"
+                [class.uploading]="isUploadingImage"
+              >
+
+                <!-- Empty state -->
+                <ng-container *ngIf="!imagePreview && !isUploadingImage">
+                  <div class="drop-zone-icon">📷</div>
+                  <p class="drop-zone-text">Click to upload an image</p>
+                  <p class="drop-zone-hint">JPG, PNG, WEBP up to 5 MB</p>
+                </ng-container>
+
+                <!-- Uploading state -->
+                <ng-container *ngIf="isUploadingImage">
+                  <div class="upload-spinner">⏳</div>
+                  <p class="drop-zone-text">Uploading…</p>
+                  <p class="drop-zone-hint">Please wait</p>
+                </ng-container>
+
+                <!-- Preview state -->
+                <ng-container *ngIf="imagePreview && !isUploadingImage">
+                  <img
+                    [src]="imagePreview"
+                    alt="Recipe preview"
+                    class="drop-zone-preview"
+                  />
+                  <div class="preview-overlay">
+                    <span>✏️ Click to change</span>
+                  </div>
+                </ng-container>
+
+              </label>
+
+              <!-- Upload error -->
+              <div class="upload-error" *ngIf="uploadError">
+                ⚠️ {{ uploadError }}
+              </div>
+
+              <!-- Remove button -->
+              <button
+                type="button"
+                class="btn-clear-image"
+                *ngIf="imagePreview && !isUploadingImage"
+                (click)="clearImage()"
+              >
+                🗑️ Remove Image
+              </button>
+
+            </div>
+            <!-- ── END UPLOAD MODE ────────────────────── -->
+
+            <!-- ── URL MODE ───────────────────────────── -->
+            <div *ngIf="imageInputMode === 'url'">
+              <input
+                type="url"
+                formControlName="imageUrl"
+                placeholder="https://example.com/my-recipe-photo.jpg"
+                (input)="onImageUrlChange($any($event.target).value)"
+              />
+              <p class="field-hint">
+                Paste a direct image URL (jpg, png, webp)
+              </p>
+
+              <!-- URL preview -->
+              <div class="image-preview" *ngIf="imagePreview">
+                <img
+                  [src]="imagePreview"
+                  alt="Preview"
+                  onerror="this.style.display='none'"
+                />
+                <span class="preview-label">Image Preview</span>
+              </div>
+            </div>
+            <!-- ── END URL MODE ──────────────────────── -->
+
+          </div>
+          <!-- ─── END IMAGE UPLOAD ─────────────────────── -->
+
+          <!-- Tags -->
+          <div class="form-group">
+            <label>🏷️ Tags</label>
+            <input
+              type="text"
+              formControlName="tags"
+              placeholder="healthy, quick, vegetarian, pasta (comma separated)"
+            />
+            <p class="field-hint">
+              Separate tags with commas to help others find your recipe
+            </p>
+
+            <!-- Tag preview chips -->
+            <div
+              class="tags-preview"
+              *ngIf="recipeForm.get('tags')?.value"
+            >
+              <span
+                class="tag-chip"
+                *ngFor="let tag of recipeForm.get('tags')?.value
+                  ?.split(',')
+                  ?.map(t => t.trim())
+                  ?.filter(t => t)"
+              >
+                {{ tag }}
+              </span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+      <!-- ─── END STEP 1 ──────────────────────────────── -->
+
+      <!-- ─── STEP 2: INGREDIENTS ────────────────────── -->
+      <div class="form-step" *ngIf="currentStep === 2">
+        <div class="step-card">
+          <div class="step-header">
+            <div>
+              <h2>🥕 Ingredients</h2>
+              <p class="step-desc">
+                Add all ingredients with amounts and units
+              </p>
+            </div>
+            <button
+              type="button"
+              class="btn-add"
+              (click)="addIngredient()"
+            >
+              + Add Ingredient
+            </button>
+          </div>
+
+          <div formArrayName="ingredients">
+            <div
+              *ngFor="let ingredient of ingredientsArray.controls;
+                let i = index"
+              [formGroupName]="i"
+              class="ingredient-row"
+            >
+              <!-- Number -->
+              <div class="row-number">{{ i + 1 }}</div>
+
+              <!-- Name -->
+              <div class="form-group flex-2">
+                <label>Ingredient *</label>
+                <input
+                  type="text"
+                  formControlName="name"
+                  [placeholder]="'e.g. ' + ['Spaghetti', 'Olive Oil',
+                    'Garlic', 'Eggs', 'Parmesan'][i % 5]"
+                  [class.error]="ingredient.get('name')?.invalid &&
+                    ingredient.get('name')?.touched"
+                />
+                <div class="field-errors"
+                     *ngIf="ingredient.get('name')?.invalid &&
+                       ingredient.get('name')?.touched">
+                  <span>Ingredient name is required</span>
+                </div>
+              </div>
+
+              <!-- Amount -->
+              <div class="form-group flex-1">
+                <label>Amount *</label>
+                <input
+                  type="number"
+                  formControlName="amount"
+                  placeholder="200"
+                  min="0"
+                  step="0.1"
+                  [class.error]="ingredient.get('amount')?.invalid &&
+                    ingredient.get('amount')?.touched"
+                />
+              </div>
+
+              <!-- Unit -->
+              <div class="form-group flex-1">
+                <label>Unit *</label>
+                <select formControlName="unit">
+                  <option *ngFor="let u of units" [value]="u">
+                    {{ u }}
+                  </option>
+                </select>
+              </div>
+
+              <!-- Category -->
+              <div class="form-group flex-1">
+                <label>Category</label>
+                <select formControlName="category">
+                  <option *ngFor="let c of categories" [value]="c">
+                    {{ c }}
+                  </option>
+                </select>
+              </div>
+
+              <!-- Remove -->
+              <button
+                type="button"
+                class="btn-remove"
+                (click)="removeIngredient(i)"
+                *ngIf="ingredientsArray.length > 1"
+                title="Remove ingredient"
+              >✕</button>
+            </div>
+          </div>
+
+          <!-- Ingredient Summary -->
+          <div class="ingredients-summary">
+            <span>
+              Total: <strong>{{ ingredientsArray.length }}</strong> ingredients
+            </span>
+          </div>
+
+        </div>
+      </div>
+      <!-- ─── END STEP 2 ──────────────────────────────── -->
+
+      <!-- ─── STEP 3: COOKING STEPS ──────────────────── -->
+      <div class="form-step" *ngIf="currentStep === 3">
+        <div class="step-card">
+          <div class="step-header">
+            <div>
+              <h2>📋 Cooking Steps</h2>
+              <p class="step-desc">
+                Guide others through your cooking process
+              </p>
+            </div>
+            <button
+              type="button"
+              class="btn-add"
+              (click)="addStep()"
+            >
+              + Add Step
+            </button>
+          </div>
+
+          <div formArrayName="steps">
+            <div
+              *ngFor="let step of stepsArray.controls; let i = index"
+              [formGroupName]="i"
+              class="step-row"
+            >
+              <!-- Step Number -->
+              <div class="step-num">{{ i + 1 }}</div>
+
+              <!-- Step Content -->
+              <div class="step-inputs">
+                <div class="form-group">
+                  <label>Step {{ i + 1 }} Description *</label>
+                  <textarea
+                    formControlName="description"
+                    [placeholder]="'Describe what to do in step ' + (i + 1) + '...'"
+                    rows="3"
+                    [class.error]="step.get('description')?.invalid &&
+                      step.get('description')?.touched"
+                  ></textarea>
+                  <div class="field-errors"
+                       *ngIf="step.get('description')?.invalid &&
+                         step.get('description')?.touched">
+                    <span *ngIf="step.get('description')?.errors?.['required']">
+                      Step description is required
+                    </span>
+                    <span *ngIf="step.get('description')?.errors?.['minlength']">
+                      Must be at least 5 characters
+                    </span>
+                  </div>
+                </div>
+
+                <div class="form-group small-field">
+                  <label>⏱️ Duration (min)</label>
+                  <input
+                    type="number"
+                    formControlName="duration"
+                    placeholder="10"
+                    min="0"
+                  />
+                  <p class="field-hint">Optional</p>
+                </div>
+              </div>
+
+              <!-- Remove Step -->
+              <button
+                type="button"
+                class="btn-remove"
+                (click)="removeStep(i)"
+                *ngIf="stepsArray.length > 1"
+                title="Remove step"
+              >✕</button>
+
+            </div>
+          </div>
+
+          <!-- Steps Summary -->
+          <div class="steps-summary">
+            <div class="summary-item">
+              <span>📋 Total Steps</span>
+              <strong>{{ stepsArray.length }}</strong>
+            </div>
+            <div class="summary-item">
+              <span>⏱️ Total Cook Time</span>
+              <strong>
+                {{ recipeForm.get('cookingTime')?.value || 0 }} min
+              </strong>
+            </div>
+          </div>
+
+        </div>
+      </div>
+      <!-- ─── END STEP 3 ──────────────────────────────── -->
+
+      <!-- ─── STEP 4: NUTRITION ──────────────────────── -->
+      <div class="form-step" *ngIf="currentStep === 4">
+        <div class="step-card">
+          <h2>📊 Nutritional Information</h2>
+          <p class="step-desc">
+            Add nutrition facts per serving to help users track their diet
+          </p>
+
+          <div formGroupName="nutrition">
+            <div class="nutrition-inputs">
+
+              <!-- Calories -->
+              <div class="nutrition-input-card calories-card">
+                <div class="nutrition-icon">🔥</div>
+                <div class="form-group">
+                  <label>Calories *</label>
+                  <input
+                    type="number"
+                    formControlName="calories"
+                    placeholder="450"
+                    min="0"
+                    [class.error]="recipeForm.get('nutrition.calories')?.invalid &&
+                      recipeForm.get('nutrition.calories')?.touched"
+                  />
+                </div>
+                <span class="unit-label">kcal per serving</span>
+                <div class="field-errors"
+                     *ngIf="recipeForm.get('nutrition.calories')?.invalid &&
+                       recipeForm.get('nutrition.calories')?.touched">
+                  <span>Required</span>
+                </div>
+              </div>
+
+              <!-- Carbohydrates -->
+              <div class="nutrition-input-card">
+                <div class="nutrition-icon">🌾</div>
+                <div class="form-group">
+                  <label>Carbohydrates *</label>
+                  <input
+                    type="number"
+                    formControlName="carbohydrates"
+                    placeholder="55"
+                    min="0"
+                    [class.error]="recipeForm.get('nutrition.carbohydrates')?.invalid &&
+                      recipeForm.get('nutrition.carbohydrates')?.touched"
+                  />
+                </div>
+                <span class="unit-label">grams</span>
+                <div class="field-errors"
+                     *ngIf="recipeForm.get('nutrition.carbohydrates')?.invalid &&
+                       recipeForm.get('nutrition.carbohydrates')?.touched">
+                  <span>Required</span>
+                </div>
+              </div>
+
+              <!-- Proteins -->
+              <div class="nutrition-input-card">
+                <div class="nutrition-icon">💪</div>
+                <div class="form-group">
+                  <label>Proteins *</label>
+                  <input
+                    type="number"
+                    formControlName="proteins"
+                    placeholder="25"
+                    min="0"
+                    [class.error]="recipeForm.get('nutrition.proteins')?.invalid &&
+                      recipeForm.get('nutrition.proteins')?.touched"
+                  />
+                </div>
+                <span class="unit-label">grams</span>
+                <div class="field-errors"
+                     *ngIf="recipeForm.get('nutrition.proteins')?.invalid &&
+                       recipeForm.get('nutrition.proteins')?.touched">
+                  <span>Required</span>
+                </div>
+              </div>
+
+              <!-- Fat -->
+              <div class="nutrition-input-card">
+                <div class="nutrition-icon">🥑</div>
+                <div class="form-group">
+                  <label>Fat *</label>
+                  <input
+                    type="number"
+                    formControlName="fat"
+                    placeholder="15"
+                    min="0"
+                    [class.error]="recipeForm.get('nutrition.fat')?.invalid &&
+                      recipeForm.get('nutrition.fat')?.touched"
+                  />
+                </div>
+                <span class="unit-label">grams</span>
+                <div class="field-errors"
+                     *ngIf="recipeForm.get('nutrition.fat')?.invalid &&
+                       recipeForm.get('nutrition.fat')?.touched">
+                  <span>Required</span>
+                </div>
+              </div>
+
+              <!-- Fiber -->
+              <div class="nutrition-input-card">
+                <div class="nutrition-icon">🌿</div>
+                <div class="form-group">
+                  <label>Fiber *</label>
+                  <input
+                    type="number"
+                    formControlName="fiber"
+                    placeholder="5"
+                    min="0"
+                    [class.error]="recipeForm.get('nutrition.fiber')?.invalid &&
+                      recipeForm.get('nutrition.fiber')?.touched"
+                  />
+                </div>
+                <span class="unit-label">grams</span>
+                <div class="field-errors"
+                     *ngIf="recipeForm.get('nutrition.fiber')?.invalid &&
+                       recipeForm.get('nutrition.fiber')?.touched">
+                  <span>Required</span>
+                </div>
+              </div>
+
+            </div>
+
+            <!-- Nutrition Preview -->
+            <div class="nutrition-preview"
+                 *ngIf="recipeForm.get('nutrition')?.valid">
+              <h3>📊 Nutrition Preview</h3>
+              <div class="preview-grid">
+
+                <div class="preview-card highlight">
+                  <span class="preview-icon">🔥</span>
+                  <span class="preview-value">
+                    {{ recipeForm.get('nutrition.calories')?.value }}
+                  </span>
+                  <span class="preview-label">Calories</span>
+                </div>
+
+                <div class="preview-bars">
+
+                  <div class="preview-item">
+                    <div class="preview-label-row">
+                      <span>🌾 Carbs</span>
+                      <span>
+                        {{ recipeForm.get('nutrition.carbohydrates')?.value }}g
+                      </span>
+                    </div>
+                    <div class="preview-bar">
+                      <div
+                        class="fill carbs"
+                        [style.width.%]="(recipeForm.get('nutrition.carbohydrates')?.value / 325) * 100"
+                      ></div>
+                    </div>
+                    <span class="daily-value">
+                      {{ ((recipeForm.get('nutrition.carbohydrates')?.value / 325) * 100) | number:'1.0-0' }}% daily value
+                    </span>
+                  </div>
+
+                  <div class="preview-item">
+                    <div class="preview-label-row">
+                      <span>💪 Protein</span>
+                      <span>
+                        {{ recipeForm.get('nutrition.proteins')?.value }}g
+                      </span>
+                    </div>
+                    <div class="preview-bar">
+                      <div
+                        class="fill protein"
+                        [style.width.%]="(recipeForm.get('nutrition.proteins')?.value / 75) * 100"
+                      ></div>
+                    </div>
+                    <span class="daily-value">
+                      {{ ((recipeForm.get('nutrition.proteins')?.value / 75) * 100) | number:'1.0-0' }}% daily value
+                    </span>
+                  </div>
+
+                  <div class="preview-item">
+                    <div class="preview-label-row">
+                      <span>🥑 Fat</span>
+                      <span>
+                        {{ recipeForm.get('nutrition.fat')?.value }}g
+                      </span>
+                    </div>
+                    <div class="preview-bar">
+                      <div
+                        class="fill fat"
+                        [style.width.%]="(recipeForm.get('nutrition.fat')?.value / 65) * 100"
+                      ></div>
+                    </div>
+                    <span class="daily-value">
+                      {{ ((recipeForm.get('nutrition.fat')?.value / 65) * 100) | number:'1.0-0' }}% daily value
+                    </span>
+                  </div>
+
+                  <div class="preview-item">
+                    <div class="preview-label-row">
+                      <span>🌿 Fiber</span>
+                      <span>
+                        {{ recipeForm.get('nutrition.fiber')?.value }}g
+                      </span>
+                    </div>
+                    <div class="preview-bar">
+                      <div
+                        class="fill fiber"
+                        [style.width.%]="(recipeForm.get('nutrition.fiber')?.value / 28) * 100"
+                      ></div>
+                    </div>
+                    <span class="daily-value">
+                      {{ ((recipeForm.get('nutrition.fiber')?.value / 28) * 100) | number:'1.0-0' }}% daily value
+                    </span>
+                  </div>
+
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Final Recipe Summary -->
+        <div class="recipe-summary-card"
+             *ngIf="recipeForm.get('title')?.value">
+          <h3>✅ Recipe Summary</h3>
+          <div class="summary-grid">
+
+            <div class="summary-item">
+              <span class="s-label">Title</span>
+              <span class="s-value">{{ recipeForm.get('title')?.value }}</span>
+            </div>
+            <div class="summary-item">
+              <span class="s-label">Cuisine</span>
+              <span class="s-value">{{ recipeForm.get('cuisine')?.value }}</span>
+            </div>
+            <div class="summary-item">
+              <span class="s-label">Difficulty</span>
+              <span class="s-value"
+                [class.easy]="recipeForm.get('difficulty')?.value === 'Easy'"
+                [class.medium]="recipeForm.get('difficulty')?.value === 'Medium'"
+                [class.hard]="recipeForm.get('difficulty')?.value === 'Hard'"
+              >
+                {{ recipeForm.get('difficulty')?.value }}
+              </span>
+            </div>
+            <div class="summary-item">
+              <span class="s-label">Cook Time</span>
+              <span class="s-value">
+                {{ recipeForm.get('cookingTime')?.value }} min
+              </span>
+            </div>
+            <div class="summary-item">
+              <span class="s-label">Servings</span>
+              <span class="s-value">{{ recipeForm.get('servings')?.value }}</span>
+            </div>
+            <div class="summary-item">
+              <span class="s-label">Ingredients</span>
+              <span class="s-value">{{ ingredientsArray.length }} items</span>
+            </div>
+            <div class="summary-item">
+              <span class="s-label">Steps</span>
+              <span class="s-value">{{ stepsArray.length }} steps</span>
+            </div>
+            <div class="summary-item">
+              <span class="s-label">Calories</span>
+              <span class="s-value">
+                {{ recipeForm.get('nutrition.calories')?.value }} kcal
+              </span>
+            </div>
+
+            <!-- Image summary row -->
+            <div class="summary-item" *ngIf="imagePreview">
+              <span class="s-label">Image</span>
+              <span class="s-value">
+                <img
+                  [src]="imagePreview"
+                  alt="Recipe"
+                  class="summary-thumb"
+                  onerror="this.style.display='none'"
+                />
+              </span>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+      <!-- ─── END STEP 4 ──────────────────────────────── -->
+
+      <!-- ─── NAVIGATION BUTTONS ─────────────────────── -->
+      <div class="form-navigation">
+
+        <!-- Previous -->
+        <button
+          type="button"
+          class="btn-prev"
+          *ngIf="currentStep > 1"
+          (click)="prevStep()"
+        >
+          ← Previous
+        </button>
+
+        <!-- Step Info -->
+        <div class="step-info">
+          <span>Step {{ currentStep }} of {{ totalSteps }}</span>
+          <div class="step-dots">
+            <span
+              *ngFor="let s of [1,2,3,4]"
+              class="dot"
+              [class.active]="currentStep === s"
+              [class.done]="currentStep > s"
+            ></span>
+          </div>
+        </div>
+
+        <!-- Next -->
+        <button
+          type="button"
+          class="btn-next"
+          *ngIf="currentStep < totalSteps"
+          (click)="nextStep()"
+          [disabled]="!isStepValid(currentStep)"
+          [title]="!isStepValid(currentStep) ?
+            'Please fill all required fields' : ''"
+        >
+          Next →
+        </button>
+
+        <!-- Submit — also blocked while image is uploading -->
+        <button
+          type="submit"
+          class="btn-submit"
+          *ngIf="currentStep === totalSteps"
+          [disabled]="recipeForm.invalid || isLoading || isUploadingImage"
+        >
+          <span *ngIf="!isLoading && !isUploadingImage">
+            🚀 Publish Recipe
+          </span>
+          <span *ngIf="isUploadingImage" class="loading-text">
+            ⏳ Uploading image…
+          </span>
+          <span *ngIf="isLoading && !isUploadingImage" class="loading-text">
+            ⏳ Publishing…
+          </span>
+        </button>
+
+      </div>
+
+    </form>
+  </div>
+</div>

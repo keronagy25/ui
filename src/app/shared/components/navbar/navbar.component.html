@@ -1,0 +1,69 @@
+<nav class="navbar" [class.scrolled]="isScrolled">
+  <div class="container navbar-inner">
+
+    <a routerLink="/" class="navbar-logo">
+      <span class="logo-text">Meal<span class="logo-accent">plan</span></span>
+    </a>
+
+    <ul class="navbar-links" [class.open]="isMenuOpen">
+      <li>
+        <a routerLink="/"
+           routerLinkActive="active"
+           [routerLinkActiveOptions]="{exact:true}">
+          Home
+        </a>
+      </li>
+      <li><a routerLink="/recipes" routerLinkActive="active">Recipes</a></li>
+      <li><a routerLink="/meal-plan" routerLinkActive="active">Meal Plan</a></li>
+      <li><a routerLink="/shopping-list" routerLinkActive="active">Shopping</a></li>
+      <li><a routerLink="/saved-recipes" routerLinkActive="active">Saved</a></li>
+    </ul>
+
+    <div class="navbar-actions">
+
+      <button class="theme-toggle" (click)="toggleDarkMode()">
+        <span *ngIf="!isDarkMode">🌙</span>
+        <span *ngIf="isDarkMode">☀️</span>
+      </button>
+
+      <ng-container *ngIf="!isLoggedIn">
+        <a routerLink="/auth/login" class="btn-secondary">Login</a>
+        <a routerLink="/auth/register" class="btn-primary">Get Started</a>
+      </ng-container>
+
+      <ng-container *ngIf="isLoggedIn">
+        <a routerLink="/recipes/create" class="btn-primary">+ Add Recipe</a>
+
+        <div class="profile-dropdown" (click)="toggleProfile()">
+          <div class="avatar">
+            <img
+              *ngIf="currentUser?.photoURL"
+              [src]="currentUser?.photoURL"
+              [alt]="currentUser?.displayName"
+            />
+            <span *ngIf="!currentUser?.photoURL">
+              {{ currentUser?.displayName?.charAt(0) | uppercase }}
+            </span>
+          </div>
+
+          <div class="dropdown-menu" *ngIf="isProfileOpen">
+            <a [routerLink]="['/profile', currentUser?.username]">
+              👤 My Profile
+            </a>
+            <a routerLink="/saved-recipes">🔖 Saved Recipes</a>
+            <a routerLink="/meal-plan">📅 Meal Plan</a>
+            <hr />
+            <button (click)="logout()">🚪 Logout</button>
+          </div>
+        </div>
+      </ng-container>
+
+      <button class="menu-toggle" (click)="toggleMenu()">
+        <span [class.open]="isMenuOpen"></span>
+        <span [class.open]="isMenuOpen"></span>
+        <span [class.open]="isMenuOpen"></span>
+      </button>
+
+    </div>
+  </div>
+</nav>

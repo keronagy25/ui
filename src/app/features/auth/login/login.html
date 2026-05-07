@@ -1,0 +1,116 @@
+<!-- src/app/features/auth/login/login.component.html -->
+<div class="auth-wrapper">
+  <div class="auth-left">
+    <div class="auth-brand">
+      <a routerLink="/" class="logo">Meal<span>plan</span></a>
+      <h2>Welcome back! 👋</h2>
+      <p>Log in to access your recipes, meal plans and shopping lists.</p>
+    </div>
+
+    <div class="auth-image">
+      <img
+        src="https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=600"
+        alt="Healthy Food"
+      />
+    </div>
+
+    <div class="auth-features">
+      <div class="feature-item">
+        <span class="icon">🍽️</span>
+        <span>Access 10,000+ recipes</span>
+      </div>
+      <div class="feature-item">
+        <span class="icon">📅</span>
+        <span>Plan your weekly meals</span>
+      </div>
+      <div class="feature-item">
+        <span class="icon">🛒</span>
+        <span>Auto shopping lists</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="auth-right">
+    <div class="auth-card">
+      <div class="auth-header">
+        <h1>Sign In</h1>
+        <p>Don't have an account?
+          <a routerLink="/auth/register" class="link">Create one free</a>
+        </p>
+      </div>
+
+      <!-- Error Message -->
+      <div class="error-alert" *ngIf="errorMessage">
+        <span>⚠️</span> {{ errorMessage }}
+      </div>
+
+      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+
+        <!-- Email -->
+        <div class="form-group">
+          <label for="email">Email Address</label>
+          <div class="input-wrapper" [class.error]="email?.invalid && email?.touched">
+            <span class="input-icon">📧</span>
+            <input
+              id="email"
+              type="email"
+              formControlName="email"
+              placeholder="Enter your email"
+              autocomplete="email"
+            />
+          </div>
+          <div class="field-errors" *ngIf="email?.invalid && email?.touched">
+            <span *ngIf="email?.errors?.['required']">Email is required</span>
+            <span *ngIf="email?.errors?.['email']">Enter a valid email</span>
+          </div>
+        </div>
+
+        <!-- Password -->
+        <div class="form-group">
+          <label for="password">Password</label>
+          <div class="input-wrapper" [class.error]="password?.invalid && password?.touched">
+            <span class="input-icon">🔒</span>
+            <input
+              id="password"
+              [type]="showPassword ? 'text' : 'password'"
+              formControlName="password"
+              placeholder="Enter your password"
+              autocomplete="current-password"
+            />
+            <button
+              type="button"
+              class="toggle-password"
+              (click)="togglePassword()"
+            >
+              {{ showPassword ? '🙈' : '👁️' }}
+            </button>
+          </div>
+          <div class="field-errors" *ngIf="password?.invalid && password?.touched">
+            <span *ngIf="password?.errors?.['required']">Password is required</span>
+            <span *ngIf="password?.errors?.['minlength']">
+              Password must be at least 6 characters
+            </span>
+          </div>
+        </div>
+
+        <!-- Submit -->
+        <button
+          type="submit"
+          class="btn-submit"
+          [disabled]="isLoading"
+        >
+          <span *ngIf="!isLoading">Sign In →</span>
+          <span *ngIf="isLoading" class="spinner">⏳ Signing in...</span>
+        </button>
+
+      </form>
+
+      <div class="auth-footer">
+        <p>By signing in, you agree to our
+          <a href="#">Terms of Service</a> and
+          <a href="#">Privacy Policy</a>
+        </p>
+      </div>
+    </div>
+  </div>
+</div>

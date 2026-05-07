@@ -1,0 +1,233 @@
+<!-- src/app/features/meal-plan/meal-planner/meal-planner.component.html -->
+<div class="meal-planner">
+
+  <!-- Header -->
+  <div class="planner-header">
+    <div class="container">
+      <div class="header-content">
+        <div>
+          <h1>📅 Weekly Meal Planner</h1>
+          <p>Plan your meals • Total meals this week: {{ getTotalMeals() }}</p>
+        </div>
+        <div class="header-actions">
+          <button class="btn-secondary" (click)="clearPlan()">
+            🗑️ Clear Plan
+          </button>
+          <button
+            class="btn-primary"
+            (click)="generateShoppingList()"
+            [disabled]="generatingList"
+          >
+            {{ generatingList ? '⏳ Generating...' : '🛒 Generate Shopping List' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="container planner-body">
+
+    <!-- Success Message -->
+    <div class="success-alert" *ngIf="successMessage">
+      {{ successMessage }}
+    </div>
+
+    <!-- Error Message -->
+    <div class="error-alert" *ngIf="errorMessage">
+      ⚠️ {{ errorMessage }}
+    </div>
+
+    <!-- Loading -->
+    <div class="loading-state" *ngIf="isLoading">
+      <p>⏳ Loading your meal plan...</p>
+    </div>
+
+    <!-- Planner Grid -->
+    <div class="planner-grid" *ngIf="!isLoading && currentPlan">
+
+      <div
+        class="day-column"
+        *ngFor="let day of currentPlan.days"
+      >
+        <!-- Day Header -->
+        <div class="day-header">
+          <h3>{{ day.dayName }}</h3>
+          <span class="day-cal">
+            🔥 {{ getDayNutrition(day).calories }} cal
+          </span>
+        </div>
+
+        <!-- Meal Types -->
+        <div
+          class="meal-type-block"
+          *ngFor="let mealType of mealTypes"
+        >
+          <div class="meal-type-header">
+            <span class="meal-label">
+              {{ mealType.icon }} {{ mealType.label }}
+            </span>
+            <button
+              class="btn-add-meal"
+              (click)="openRecipeModal(day.dayName, mealType.key)"
+              [title]="'Add to ' + mealType.label"
+            >+</button>
+          </div>
+
+          <!-- Meal Slots -->
+          <div class="meal-slots">
+            <div
+              class="meal-slot"
+              *ngFor="let slot of getMealSlots(day, mealType.key);
+                let i = index"
+            >
+              <img
+                [src]="slot.recipeImage ||
+                  'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=80'"
+                [alt]="slot.recipeName"
+                onerror="this.src='https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=80'"
+              />
+              <div class="slot-info">
+                <span class="slot-name">{{ slot.recipeName }}</span>
+                <span class="slot-cal"
+                  *ngIf="slot.nutrition?.calories">
+                  🔥 {{ slot.nutrition.calories }} cal
+                </span>
+              </div>
+              <button
+                class="btn-remove-slot"
+                (click)="removeFromMeal(day.dayName, mealType.key, i)"
+                title="Remove"
+              >✕</button>
+            </div>
+
+            <!-- Empty Slot -->
+            <div
+              class="empty-slot"
+              *ngIf="getMealSlots(day, mealType.key).length === 0"
+              (click)="openRecipeModal(day.dayName, mealType.key)"
+            >
+              <span>+ Add</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Day Nutrition Bar -->
+        <div class="day-nutrition-bar">
+          <div class="nut-item" title="Protein">
+            💪 {{ getDayNutrition(day).proteins }}g
+          </div>
+          <div class="nut-item" title="Carbs">
+            🌾 {{ getDayNutrition(day).carbs }}g
+          </div>
+          <div class="nut-item" title="Fat">
+            🥑 {{ getDayNutrition(day).fat }}g
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Save Button -->
+    <div class="save-bar" *ngIf="!isLoading">
+  <button
+    class="btn-save"
+    (click)="savePlan()"
+    [disabled]="isSaving || isExportingPDF"
+  >
+    <span *ngIf="!isSaving">💾 Save Meal Plan</span>
+    <span *ngIf="isSaving">⏳ Saving...</span>
+  </button>
+
+  <button
+    class="btn-pdf"
+    (click)="downloadPDF()"
+    [disabled]="isSaving || isExportingPDF"
+  >
+    <span *ngIf="!isExportingPDF">📄 Download PDF</span>
+    <span *ngIf="isExportingPDF">⏳ Generating PDF...</span>
+  </button>
+</div>
+
+  </div>
+
+  <!-- ─── RECIPE MODAL ──────────────────────────────── -->
+  <div
+    class="modal-overlay"
+    *ngIf="showRecipeModal"
+    (click)="closeModal()"
+  >
+    <div class="modal" (click)="$event.stopPropagation()">
+
+      <div class="modal-header">
+        <div>
+          <h3>Add to {{ selectedDay }}</h3>
+          <p>{{ selectedMealType | titlecase }}</p>
+        </div>
+        <button class="modal-close" (click)="closeModal()">✕</button>
+      </div>
+
+      <div class="modal-search">
+        <span>🔍</span>
+        <input
+          type="text"
+          [(ngModel)]="recipeSearch"
+          placeholder="Search recipes..."
+          autofocus
+        />
+        <button
+          *ngIf="recipeSearch"
+          (click)="recipeSearch = ''"
+        >✕</button>
+      </div>
+
+      <div class="modal-recipes">
+
+        <div
+          class="modal-recipe-item"
+          *ngFor="let recipe of filteredRecipes"
+          (click)="addRecipeToMeal(recipe)"
+        >
+          <img
+            [src]="recipe.images?.[0] ||
+              'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=80'"
+            [alt]="recipe.title"
+            onerror="this.src='https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=80'"
+          />
+          <div class="recipe-item-info">
+            <span class="recipe-item-name">{{ recipe.title }}</span>
+            <span class="recipe-item-meta">
+              ⏱️ {{ recipe.cookingTime }} min •
+              🔥 {{ recipe.nutrition?.calories || 0 }} cal •
+              {{ recipe.cuisine }}
+            </span>
+          </div>
+          <div class="add-btn">+</div>
+        </div>
+
+        <!-- No Recipes -->
+        <div
+          class="empty-modal"
+          *ngIf="filteredRecipes.length === 0 && !recipeSearch"
+        >
+          <p>🍽️ No recipes yet!</p>
+          <a
+            routerLink="/recipes/create"
+            (click)="closeModal()"
+            class="create-link"
+          >
+            + Create your first recipe
+          </a>
+        </div>
+
+        <div
+          class="empty-modal"
+          *ngIf="filteredRecipes.length === 0 && recipeSearch"
+        >
+          <p>No recipes match "{{ recipeSearch }}"</p>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+</div>
