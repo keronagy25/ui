@@ -55,15 +55,31 @@
             <h1>{{ recipe.title }}</h1>
             <p class="recipe-description">{{ recipe.description }}</p>
 
-            <!-- Author -->
+            <!-- Author with Follow Button -->
             <div class="recipe-author">
               <div class="author-avatar">
                 {{ recipe.authorName.charAt(0) | uppercase }}
               </div>
-              <div>
-                <span class="author-name">{{ recipe.authorName }}</span>
+              <div class="author-info">
+                <div class="author-name-row">
+                  <span class="author-name">{{ recipe.authorName }}</span>
+                  <!-- Follow Button - Only show if not own recipe and user is logged in -->
+                  <button
+                    *ngIf="!isOwnRecipe && isLoggedIn"
+                    class="follow-author-btn"
+                    [class.following]="authorIsFollowing"
+                    (click)="toggleFollowAuthor()"
+                    [disabled]="isLoadingAuthor"
+                  >
+                    {{ authorIsFollowing ? '✓ Following' : '+ Follow' }}
+                  </button>
+                </div>
                 <span class="recipe-date">
                   {{ formatDate(recipe.createdAt) }}
+                </span>
+                <!-- Show follower count -->
+                <span class="author-followers" *ngIf="recipeAuthor?.followers?.length">
+                  {{ recipeAuthor?.followers?.length }} followers
                 </span>
               </div>
             </div>

@@ -144,18 +144,70 @@
           justify-content: center;
           font-weight: 700;
           font-size: 18px;
+          flex-shrink: 0;
         }
 
-        .author-name {
-          display: block;
-          font-weight: 600;
-          color: white;
-        }
-
-        .recipe-date {
-          display: block;
-          font-size: 12px;
-          color: rgba(255,255,255,0.5);
+        .author-info {
+          flex: 1;
+          
+          .author-name-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            
+            .author-name {
+              display: block;
+              font-weight: 600;
+              color: white;
+            }
+            
+            .follow-author-btn {
+              background: rgba(198,241,53,0.15);
+              border: 1px solid rgba(198,241,53,0.3);
+              color: #c6f135;
+              padding: 4px 14px;
+              border-radius: 50px;
+              font-size: 12px;
+              font-weight: 600;
+              cursor: pointer;
+              transition: all 0.2s ease;
+              font-family: 'Inter', sans-serif;
+              
+              &:hover {
+                background: rgba(198,241,53,0.3);
+                transform: translateY(-1px);
+              }
+              
+              &.following {
+                background: #c6f135;
+                color: #1a1a2e;
+                border-color: #c6f135;
+              }
+              
+              &:disabled {
+                opacity: 0.5;
+                cursor: not-allowed;
+              }
+            }
+          }
+          
+          .recipe-date {
+            display: block;
+            font-size: 12px;
+            color: rgba(255,255,255,0.5);
+            margin-top: 4px;
+          }
+          
+          .author-followers {
+            display: inline-block;
+            font-size: 11px;
+            color: rgba(255,255,255,0.4);
+            margin-top: 4px;
+            background: rgba(255,255,255,0.05);
+            padding: 2px 8px;
+            border-radius: 50px;
+          }
         }
       }
 

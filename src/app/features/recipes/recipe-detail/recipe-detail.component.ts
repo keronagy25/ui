@@ -12,6 +12,7 @@ import { RecipeService } from '../../../core/services/recipe.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { UserService } from '../../../core/services/user.service';
 import { Recipe, RecipeComment, Review } from '../../../core/models/recipe.model';
+import { User } from '../../../core/models/user.model';
 
 @Component({
   selector: 'app-recipe-detail',
@@ -32,6 +33,11 @@ export class RecipeDetailComponent implements OnInit {
   isLoading = true;
   activeTab: 'ingredients' | 'steps' | 'nutrition' | 'reviews' = 'ingredients';
   selectedImage = 0;
+
+  // Follow feature properties
+  recipeAuthor: User | null = null;
+  authorIsFollowing = false;
+  isLoadingAuthor = false;
 
   // Comment Form
   commentForm: FormGroup = this.fb.group({
@@ -63,10 +69,63 @@ export class RecipeDetailComponent implements OnInit {
       next: (recipe) => {
         this.recipe = recipe;
         this.isLoading = false;
+        
+        // Load author data for follow button
+        if (recipe?.authorId) {
+          this.loadAuthorData(recipe.authorId);
+        }
       },
       error: () => {
         this.isLoading = false;
         this.router.navigate(['/recipes']);
+      }
+    });
+  }
+
+  // Load author data for follow button
+  loadAuthorData(authorId: string) {
+    this.isLoadingAuthor = true;
+    this.userService.getUserById(authorId).subscribe({
+      next: (user) => {
+        this.recipeAuthor = user;
+        this.checkIfFollowingAuthor();
+        this.isLoadingAuthor = false;
+      },
+      error: () => {
+        this.isLoadingAuthor = false;
+      }
+    });
+  }
+
+  // Check if current user follows the recipe author
+  checkIfFollowingAuthor() {
+    const currentUser = this.authService.currentUserData();
+    if (currentUser && this.recipeAuthor) {
+      this.authorIsFollowing = currentUser.following?.includes(
+        this.recipeAuthor.uid
+      ) || false;
+    }
+  }
+
+  // Toggle follow/unfollow the recipe author
+  toggleFollowAuthor() {
+    if (!this.recipeAuthor || !this.currentUserId) return;
+    
+    this.userService.toggleFollow(
+      this.currentUserId,
+      this.recipeAuthor.uid
+    ).subscribe({
+      next: () => {
+        this.authorIsFollowing = !this.authorIsFollowing;
+        // Refresh author data to update follower count
+        if (this.recipeAuthor) {
+          this.loadAuthorData(this.recipeAuthor.uid);
+        }
+        // Refresh current user data
+        this.authService.refreshUserData();
+      },
+      error: (err) => {
+        console.error('Error toggling follow:', err);
       }
     });
   }
@@ -81,6 +140,10 @@ export class RecipeDetailComponent implements OnInit {
   }
 
   get isAuthor(): boolean {
+    return this.recipe?.authorId === this.currentUserId;
+  }
+
+  get isOwnRecipe(): boolean {
     return this.recipe?.authorId === this.currentUserId;
   }
 
